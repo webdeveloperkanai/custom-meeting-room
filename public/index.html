@@ -1,0 +1,90 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Video Meeting</title>
+    <style>
+        video {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+        }
+
+        .video {
+            height: 200px;
+            width: 200px;
+            border: 5px dotted green;
+            border-radius: 14px;
+            padding: 10px 25px;
+            margin: 15px;
+        }
+
+        * {
+            margin: 0px;
+            padding: 0px
+        }
+
+        .video-client {
+            max-height: 100vh;
+            max-width: 100%;
+        }
+
+        .my-video {
+            position: absolute;
+            bottom: 50px;
+            right: 50px;
+            background: #333;
+            border: none;
+            padding: 0px 20px
+        }
+
+        button {
+            padding: 15px 25px;
+            border: 2px solid transparent;
+        }
+
+        #mute {
+            position: absolute;
+            left: 50px;
+            bottom: 50px;
+            background: green;
+            color: white;
+            border-radius: 35px
+        }
+
+        #end {
+            position: absolute;
+            left: 150px;
+            bottom: 50px;
+            background: red;
+            color: white;
+            border-radius: 35px
+        }
+    </style>
+</head>
+
+<body>
+    <div id="video-grid"></div>
+
+
+    <div class="call-controller">
+        <button id="mute" onclick="muteCall('self')">Mute</button>
+        <button id="end" onclick="location.href='/new'">End Call</button>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/client.js"></script>
+    <!-- <script src="/script.js"></script> -->
+
+    <script>
+        function muteCall(id) {
+            if (document.getElementsByClassName("my-video")[0].muted) {
+                document.getElementsByClassName("my-video")[0].muted = false;
+            } else {
+                document.getElementsByClassName("my-video")[0].muted = true;
+            }
+        }
+    </script>
+</body>
+
+</html>
