@@ -27,7 +27,7 @@ socket.on('user-connected', user => {
     console.log(`User ${userId} connected`);
     addVideoStream(userId, stream);
     startPeerConnection(userId);
-    playSound(connectSound); // Play the connect sound
+    playSound(); // Play the connect sound
 });
 
 socket.on('user-disconnected', userId => {
@@ -37,7 +37,7 @@ socket.on('user-disconnected', userId => {
         peerConnections[userId].close();
         delete peerConnections[userId];
     }
-    playSound(disconnectSound); // Play the disconnect sound
+    playSound(); // Play the disconnect sound
 });
 
 function getRoomIdFromUrl() {
