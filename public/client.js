@@ -1,7 +1,7 @@
 // client.js
 const socket = io();
 let localStream;
-
+const peerConnections = {};
 socket.on('connect', () => {
     const roomId = getRoomIdFromUrl();
     const userId = generateUserId();
@@ -12,11 +12,13 @@ socket.on('connect', () => {
 socket.on('user-connected', userId => {
     console.log(`User ${userId} connected`);
     addVideoStream(userId);
+    startPeerConnection(userId);
 });
 
 socket.on('user-disconnected', userId => {
     console.log(`User ${userId} disconnected`);
     removeVideoStream(userId);
+    startPeerConnection(userId);
 });
 
 function getRoomIdFromUrl() {
@@ -55,7 +57,7 @@ function addVideoStream(userId) {
             // videoElement.srcObject = stream;
             if (stream) {
                 videoElement.srcObject = stream;
-            } 
+            }
         })
         .catch(error => {
             console.error('Error accessing media devices:', error);
@@ -66,6 +68,52 @@ function addVideoStream(userId) {
         });
 
 
+}
+
+socket.on('existing-users', existingUsers => {
+    existingUsers.forEach(existingUser => {
+        const { userId, stream } = existingUser;
+        console.log(`Existing user ${existingUser} stream ` + stream)
+        addVideoStream(existingUser, stream);
+        startPeerConnection(userId);
+    });
+});
+
+function startPeerConnection(userId) {
+    const peerConnection = new RTCPeerConnection();
+
+    localStream?.getTracks().forEach(track => {
+        peerConnection.addTrack(track, localStream);
+    });
+
+    peerConnection.ontrack = event => {
+        const videoElement = document.getElementById(userId);
+        if (!videoElement) {
+            addVideoStream(userId, event.streams[0]);
+        }
+        videoElement.srcObject = event.streams[0];
+    };
+
+    peerConnection.onicecandidate = event => {
+        if (event.candidate) {
+            socket.emit('ice-candidate', userId, event.candidate);
+        }
+    };
+
+    peerConnections[userId] = peerConnection;
+
+    // Create and send offer to the new participant
+    peerConnection
+        .createOffer()
+        .then(offer => {
+            return peerConnection.setLocalDescription(offer);
+        })
+        .then(() => {
+            socket.emit('offer', userId, peerConnection.localDescription);
+        })
+        .catch(error => {
+            console.error('Error creating or sending offer:', error);
+        });
 }
 
 function removeVideoStream(userId) {

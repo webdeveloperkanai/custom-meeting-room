@@ -39,8 +39,8 @@ socket.on('connect', () => {
 
 socket.on('existing-users', existingUsers => {
     existingUsers.forEach(existingUser => {
-        const { userId, stream } = existingUser;
-        console.warn(existingUser);
+        const { userId, stream } = existingUser; 
+        console.log(`Existing user ${existingUser} stream ` + stream)
         addVideoStream(existingUser, stream);
         startPeerConnection(userId);
     });
@@ -87,9 +87,8 @@ function addVideoStream(userId, stream) {
     videoElement.autoplay = true;
     videoElement.muted = true;
 
-    console.warn("UID got " + userId + " :: in cookie " + getCookie("userId"));
-    console.log(stream)
-
+    console.warn("90) UID got " + userId + " :: in cookie " + getCookie("userId") + " :: Stream " + stream);
+    
     if (userId === userId) {
         videoElement.muted = true;
 
@@ -99,13 +98,31 @@ function addVideoStream(userId, stream) {
         localVideoElement.autoplay = true;
         localVideoElement.muted = true;
         localVideoElement.classList.add('my-video');
+ 
+ 
+
+        
+        navigator.mediaDevices
+            .getUserMedia({ video: true, audio: true })
+            .then(stream => {
+                if (stream) {
+                    localVideoElement.srcObject = stream;
+                }
+            })
+            .catch(error => {
+                console.error('Error accessing media devices:', error);
+                // Display random images from Unsplash as a fallback
+                const imageIndex = Math.floor(Math.random() * 10) + 1;
+                localVideoElement.style.backgroundImage = `url('https://source.unsplash.com/random/1000x900/?sig=${imageIndex}')`;
+                localVideoElement.style.backgroundSize = 'cover';
+            });
 
         videoContainer.appendChild(localVideoElement);
 
-        localVideoElement.srcObject = stream;
-
     } else {
         const existingVideoElement = document.getElementById(userId);
+
+        console.warn("Remote data " + stream) ;
 
         if (existingVideoElement) {
             existingVideoElement.srcObject = stream;
