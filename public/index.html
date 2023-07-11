@@ -31,7 +31,7 @@
         }
 
         .my-video {
-            position: absolute;
+            position: fixed;
             bottom: 50px;
             right: 50px;
             background: #333;
@@ -45,7 +45,7 @@
         }
 
         #mute {
-            position: absolute;
+            position: fixed;
             left: 50px;
             bottom: 50px;
             background: green;
@@ -54,12 +54,20 @@
         }
 
         #end {
-            position: absolute;
+            position: fixed;
             left: 150px;
             bottom: 50px;
             background: red;
             color: white;
             border-radius: 35px
+        }
+
+        .video-client {
+            border: 2px solid red;
+            height: 90vh;
+            width: 90%;
+            margin: 5vh 5%;
+            border-radius: 15px;
         }
     </style>
 </head>
@@ -73,8 +81,8 @@
         <button id="end" onclick="location.href='/new'">End Call</button>
     </div>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="/client.js"></script>
-    <!-- <script src="/script.js"></script> -->
+    <!-- <script src="/client.js"></script> -->
+    <script src="/script.js"></script>
 
     <script>
         function muteCall(id) {

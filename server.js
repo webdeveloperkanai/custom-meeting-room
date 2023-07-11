@@ -1,40 +1,60 @@
-// Import required modules
+// server.js
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const path = require('path');
 
-// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+const connectedUsers = {}; // Keep track of connected users in each room
 
 io.on('connection', socket => {
-   
-  
-    socket.on('join-room', (roomId, userId) => {
-        console.log('A user connected ' + userId);
-      // Join the specified room
-      socket.join(roomId);
-      
-      // Broadcast to other participants in the room that a new user has joined
-      socket.to(roomId).emit('user-connected', userId);
-      
-      socket.on('disconnect', () => {
-        // Broadcast to other participants in the room that a user has disconnected
-        socket.to(roomId).emit('user-disconnected', userId);
-      });
+  console.log('A user connected');
+
+  socket.on('join-room', (roomId, userId) => {
+    socket.join(roomId);
+    socket.to(roomId).emit('user-connected', userId);
+
+    if (!connectedUsers[roomId]) {
+      connectedUsers[roomId] = [];
+    }
+    connectedUsers[roomId].push(userId);
+
+    socket.emit('existing-users', connectedUsers[roomId]);
+
+    socket.on('disconnect', () => {
+      socket.to(roomId).emit('user-disconnected', userId);
+
+      if (connectedUsers[roomId]) {
+        const index = connectedUsers[roomId].indexOf(userId);
+        if (index > -1) {
+          connectedUsers[roomId].splice(index, 1);
+        }
+        if (connectedUsers[roomId].length === 0) {
+          delete connectedUsers[roomId];
+        }
+      }
+    });
+
+    socket.on('offer', (targetUserId, offer) => {
+      socket.to(targetUserId).emit('offer', userId, offer);
+    });
+
+    socket.on('answer', (targetUserId, answer) => {
+      socket.to(targetUserId).emit('answer', userId, answer);
+    });
+
+    socket.on('ice-candidate', (targetUserId, iceCandidate) => {
+      socket.to(targetUserId).emit('ice-candidate', userId, iceCandidate);
     });
   });
-
-  
+});
 
 // Serve the index.html file for any route
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Start the server
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  });
 const port = 3000;
 http.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
