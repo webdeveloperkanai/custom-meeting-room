@@ -100,7 +100,7 @@ function addVideoStream(userId, stream) {
     navigator.mediaDevices
         .getUserMedia({ video: true, audio: true })
         .then(stream => {
-            // localStream = stream;
+            localStream = stream;
             // videoElement.srcObject = stream;
             if (stream) {
                 videoElement.srcObject = stream;
