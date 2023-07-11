@@ -18,7 +18,10 @@ socket.on('user-connected', userId => {
 socket.on('user-disconnected', userId => {
     console.log(`User ${userId} disconnected`);
     removeVideoStream(userId);
-    startPeerConnection(userId);
+    if (peerConnections[userId]) {
+        peerConnections[userId].close();
+        delete peerConnections[userId];
+    }
 });
 
 function getRoomIdFromUrl() {
