@@ -97,14 +97,23 @@ function addVideoStream(userId, stream) {
 
 
 
-    if (stream) {
-        videoElement.srcObject = stream;
-    } else {
-        // Display random images from Unsplash as a fallback
-        const imageIndex = Math.floor(Math.random() * 10) + 1;
-        videoElement.style.backgroundImage = `url('https://source.unsplash.com/random/400x300/?sig=${imageIndex}')`;
-        videoElement.style.backgroundSize = 'cover';
-    }
+    navigator.mediaDevices
+        .getUserMedia({ video: true, audio: true })
+        .then(stream => {
+            // localStream = stream;
+            // videoElement.srcObject = stream;
+            if (stream) {
+                videoElement.srcObject = stream;
+            }
+        })
+        .catch(error => {
+            console.error('Error accessing media devices:', error);
+            // Display random images from Unsplash as a fallback
+            const imageIndex = Math.floor(Math.random() * 10) + 1;
+            videoElement.style.backgroundImage = `url('https://source.unsplash.com/random/1000x900/?sig=${imageIndex}')`;
+            videoElement.style.backgroundSize = 'cover';
+        });
+
     videoContainer.appendChild(videoElement);
 }
 
