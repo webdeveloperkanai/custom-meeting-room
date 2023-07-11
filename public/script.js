@@ -85,17 +85,17 @@ function addVideoStream(userId, stream) {
     videoElement.setAttribute('id', userId);
     videoElement.setAttribute('class', "video");
     videoElement.autoplay = true;
+    videoElement.muted = true; 
 
     console.warn("UID got " + userId + " :: in cookie " + getCookie("userId"));
-
+    console.log(stream) 
+    
     if (userId === getCookie("userId")) {
         videoElement.muted = true;
         videoElement.classList.add('my-video');
     } else {
         videoElement.classList.add('video-client');
     }
-
-
 
     navigator.mediaDevices
         .getUserMedia({ video: true, audio: true })
