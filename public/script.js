@@ -85,16 +85,39 @@ function addVideoStream(userId, stream) {
     videoElement.setAttribute('id', userId);
     videoElement.setAttribute('class', "video");
     videoElement.autoplay = true;
-    videoElement.muted = true; 
+    videoElement.muted = true;
 
     console.warn("UID got " + userId + " :: in cookie " + getCookie("userId"));
-    console.log(stream) 
-    
+    console.log(stream)
+
     if (userId === getCookie("userId")) {
         videoElement.muted = true;
-        videoElement.classList.add('my-video');
+
+        const localVideoElement = document.createElement('video');
+        localVideoElement.setAttribute('id', 'self');
+        localVideoElement.autoplay = true;
+        localVideoElement.muted = true;
+        localVideoElement.classList.add('my-video');
+
+        videoContainer.appendChild(localVideoElement);
+
+        localVideoElement.srcObject = stream;
+
     } else {
-        videoElement.classList.add('video-client');
+        const existingVideoElement = document.getElementById(userId);
+
+        if (existingVideoElement) {
+            existingVideoElement.srcObject = stream;
+        } else {
+            const remoteVideoElement = document.createElement('video');
+            remoteVideoElement.setAttribute('id', userId);
+            remoteVideoElement.autoplay = true;
+            remoteVideoElement.classList.add('video-client');
+
+            videoContainer.appendChild(remoteVideoElement);
+
+            remoteVideoElement.srcObject = stream;
+        }
     }
 
     navigator.mediaDevices
